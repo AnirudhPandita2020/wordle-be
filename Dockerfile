@@ -22,4 +22,4 @@ WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
 
 # Run the application with production profile
-ENTRYPOINT ["java", "-Dspring.profiles.active=production", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "app.jar"]

@@ -3,11 +3,12 @@ package io.piseven.wordle;
 import io.piseven.wordle.room.main.RoomSocketHandler;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
@@ -45,7 +46,7 @@ class SocketConfig implements WebSocketConfigurer {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource(@Value("${wordle.cors.allowed-origins}") String allowedOrigin) {
+    public FilterRegistrationBean<CorsFilter> corsFilter(@Value("${wordle.cors.allowed-origins}") String allowedOrigin) {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(allowedOrigin));
         config.setAllowedMethods(List.of("*"));
@@ -54,6 +55,8 @@ class SocketConfig implements WebSocketConfigurer {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-        return source;
+        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
+        bean.setOrder(0);
+        return bean;
     }
 }

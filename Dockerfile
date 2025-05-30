@@ -6,6 +6,8 @@ WORKDIR /app
 COPY gradle gradle
 COPY gradlew build.gradle settings.gradle ./
 
+RUN chmod +x ./gradlew
+
 COPY src src
 
 RUN ./gradlew bootJar

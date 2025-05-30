@@ -8,7 +8,7 @@ COPY gradlew build.gradle settings.gradle ./
 
 COPY src src
 
-RUN ./gradlew bootJar -Pprod --no-daemon
+RUN ./gradlew bootJar
 
 
 FROM eclipse-temurin:17-jre

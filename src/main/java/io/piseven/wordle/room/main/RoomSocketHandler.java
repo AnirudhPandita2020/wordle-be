@@ -42,12 +42,16 @@ public class RoomSocketHandler extends TextWebSocketHandler {
                 return;
             }
             game = roomManager.addPlayerToGame(roomID, playerName, session);
+            session.sendMessage(toTextMessage(Map.of(
+                    "type", "PLAYER_SET",
+                    "playerID", session.getId(),
+                    "game", game
+            )));
             broadcastToRoom(roomID, Map.of(
                     "type", "PLAYER_JOINED",
-                    "name", playerName,
-                    "sessionID", session.getId(),
+                    "name", game.getPlayers().get(session.getId()).getName(),
                     "game", game
-            ), Set.of());
+            ), Set.of(session.getId()));
         } catch (RoomNotFoundException exception) {
             session.sendMessage(toTextMessage(
                     Map.of(

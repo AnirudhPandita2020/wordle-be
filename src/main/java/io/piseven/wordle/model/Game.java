@@ -6,10 +6,11 @@ import io.piseven.wordle.room.error.PlayerNotFoundException;
 import lombok.Getter;
 import org.springframework.util.Assert;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 enum GameState {
     WAITING_FOR_PLAYERS,
@@ -28,8 +29,8 @@ public class Game {
     private Game(int maxRounds, int maxPlayers) {
         this.maxRounds = maxRounds;
         this.maxPlayers = maxPlayers;
-        this.completedPlayers = new CopyOnWriteArraySet<>();
         this.players = new ConcurrentHashMap<>();
+        this.completedPlayers = Collections.synchronizedSet(new LinkedHashSet<>());
     }
 
     /**
@@ -88,7 +89,7 @@ public class Game {
             throw new PlayerNotFoundException(playerID);
         }
         player.incrementScoreAndRound(score);
-        if (player.getCurrentRound() >= maxRounds) {
+        if (!completedPlayers.contains(player) && player.getCurrentRound() >= maxRounds) {
             completedPlayers.add(player);
         }
     }

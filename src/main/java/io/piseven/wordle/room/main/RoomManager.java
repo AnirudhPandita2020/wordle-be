@@ -56,7 +56,7 @@ public class RoomManager {
      * @param session    WebSocket session of the player
      * @return the updated Game after adding the player
      */
-    public Game addPlayerToGame(String roomId, String playerName, WebSocketSession session) {
+    public synchronized Game addPlayerToGame(String roomId, String playerName, WebSocketSession session) {
         Game game = getGame(roomId);
         Player player = Player.create(playerName, session);
         game.addPlayer(player);
@@ -68,15 +68,13 @@ public class RoomManager {
      *
      * @param roomId   Identifier for the game room
      * @param playerId ID of the player to be removed
-     * @return the updated Game after purging the player
      */
-    public Game purgePlayerFromGame(String roomId, String playerId) {
+    public synchronized void purgePlayerFromGame(String roomId, String playerId) {
         Game game = getGame(roomId);
         game.purgePlayer(playerId);
         if (game.isEmpty()) {
             games.remove(roomId);
         }
-        return game;
     }
 
 }

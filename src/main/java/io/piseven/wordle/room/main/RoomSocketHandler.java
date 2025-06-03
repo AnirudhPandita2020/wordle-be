@@ -83,7 +83,6 @@ public class RoomSocketHandler extends TextWebSocketHandler {
         switch (type) {
             case "START_GAME" -> handleStartGame(session);
             case "INCREMENT_SCORE" -> handlePlayerScore(session, message);
-            case "PLAYER_LEFT" -> handlePlayerLeft(session);
             default -> session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Unsupported message type: " + type));
         }
     }
@@ -93,17 +92,6 @@ public class RoomSocketHandler extends TextWebSocketHandler {
         String roomID = queryParams.get("roomID");
         var game = roomManager.getGame(roomID);
         game.startGame();
-    }
-
-    private void handlePlayerLeft(WebSocketSession session) throws Exception {
-        var queryParams = RoomUtil.parseQueryParams(session.getUri().getQuery());
-        String roomID = queryParams.get("roomID");
-        roomManager.purgePlayerFromGame(roomID, session.getId());
-        session.close(CloseStatus.NORMAL);
-        broadcastToRoom(roomID, Map.of(
-                "type", "PLAYER_LEFT",
-                "sessionId", session.getId()
-        ), Set.of());
     }
 
     private void handlePlayerScore(WebSocketSession session, Map<String, Object> message) throws Exception {
@@ -125,7 +113,8 @@ public class RoomSocketHandler extends TextWebSocketHandler {
         )));
         broadcastToRoom(roomID, Map.of(
                 "type", "PLAYER_MOVED_FORWARD",
-                "name", playerName
+                "name", playerName,
+                "game", game
         ), Set.of(session.getId()));
         if (game.allPlayerDonePlaying()) {
             game.endGame();
@@ -166,10 +155,9 @@ public class RoomSocketHandler extends TextWebSocketHandler {
         var queryParams = RoomUtil.parseQueryParams(session.getUri().getQuery());
         String roomID = queryParams.get("roomID");
         var player = roomManager.getGame(roomID).getPlayers().get(session.getId());
-        var game = roomManager.purgePlayerFromGame(roomID, session.getId());
+        roomManager.purgePlayerFromGame(roomID, player.getId());
         broadcastToRoom(roomID, Map.of(
                 "type", "PLAYER_LEFT",
-                "game", game,
                 "name", player.getName()
         ), Set.of());
     }

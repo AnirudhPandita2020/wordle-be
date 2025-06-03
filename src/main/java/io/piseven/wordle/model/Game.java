@@ -82,7 +82,7 @@ public class Game {
      * @throws IllegalArgumentException if the player ID is empty or null
      * @throws PlayerNotFoundException  if no player with the given ID exists in the game
      */
-    public void incrementPlayerScore(String playerID, int score) {
+    public synchronized void incrementPlayerScore(String playerID, int score) {
         Assert.hasText(playerID, "Player ID must not be empty");
         Player player = players.get(playerID);
         if (player == null) {

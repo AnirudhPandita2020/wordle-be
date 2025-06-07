@@ -1,4 +1,4 @@
-package io.piseven.wordle.room.main;
+package io.piseven.wordle.room;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

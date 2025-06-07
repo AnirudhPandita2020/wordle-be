@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.piseven.wordle.room.error.MessageProcessingException;
 import io.piseven.wordle.room.messages.incoming.Message;
 import io.piseven.wordle.room.messages.incoming.MessageProcessor;
+import io.piseven.wordle.room.messages.incoming.PlayerLeftMessage;
 import io.piseven.wordle.room.messages.incoming.PlayerSetMessage;
 import io.piseven.wordle.room.session.SessionRegistry;
 import lombok.NonNull;
@@ -46,7 +47,7 @@ public class RoomSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) throws Exception {
         try {
             SessionRegistry.purge(session.getId());
-            Message playerLeftMessage = new PlayerSetMessage(session.getId());
+            Message playerLeftMessage = new PlayerLeftMessage(session.getId());
             messageProcessor.processMessage(playerLeftMessage);
         } catch (MessageProcessingException messageProcessingException) {
             session.sendMessage(new TextMessage(messageProcessingException.getPayload()));

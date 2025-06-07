@@ -20,13 +20,15 @@ enum GameState {
 
 @Getter
 public class Game {
+    private final String id;
     private final int maxRounds;
     private final int maxPlayers;
     private final Map<String, Player> players;
     private final Set<Player> completedPlayers;
     private GameState state = GameState.WAITING_FOR_PLAYERS;
 
-    private Game(int maxRounds, int maxPlayers) {
+    private Game(String id, int maxRounds, int maxPlayers) {
+        this.id = id;
         this.maxRounds = maxRounds;
         this.maxPlayers = maxPlayers;
         this.players = new ConcurrentHashMap<>();
@@ -39,29 +41,29 @@ public class Game {
      * @param maxRounds  the maximum number of rounds in the game
      * @param maxPlayers the maximum number of players allowed in the game
      * @return a new Game instance
-     * @throws IllegalArgumentException if maxRounds or maxPlayers is less than or equal to zero
+     * @throws IllegalArgumentException thrown if maxRounds is less than or equal to 4, or if maxPlayers is less than or equal to 1
      */
-    public static Game create(int maxRounds, int maxPlayers) {
-        if (maxRounds <= 0 || maxPlayers <= 0) {
-            throw new IllegalArgumentException("Max rounds and players must be greater than zero");
-        }
-        return new Game(maxRounds, maxPlayers);
+    public static Game create(String id, int maxRounds, int maxPlayers) {
+        Assert.isTrue(maxRounds > 3, "Maximum rounds must be greater than 4");
+        Assert.isTrue(maxPlayers > 1, "Maximum players must be greater than 1");
+        Assert.hasText(id, "Game ID must not be empty");
+        return new Game(id, maxRounds, maxPlayers);
     }
 
     /**
      * Adds a player to the game.
      *
      * @param player the Player to be added
-     * @throws IllegalStateException if the game is already full
+     * @throws MaxPlayerSizeExceededException if the game is already full
      */
     public void addPlayer(Player player) {
         if (players.size() >= maxPlayers) {
             throw new MaxPlayerSizeExceededException(maxPlayers);
         }
         if (GameState.IN_PROGRESS.equals(this.state) || GameState.COMPLETED.equals(this.state)) {
-            return;
+            throw new IllegalStateException("Cannot add players to a game that is already in progress or completed");
         }
-        players.put(player.getId(), player);
+        players.putIfAbsent(player.getId(), player);
     }
 
     /**
@@ -70,7 +72,7 @@ public class Game {
      * @param playerID the ID of the player to be removed
      * @throws IllegalArgumentException if the player ID is empty or null
      */
-    public void purgePlayer(String playerID) {
+    public void removePlayer(String playerID) {
         Assert.hasText(playerID, "Player ID must not be empty");
         players.remove(playerID);
     }
@@ -127,7 +129,7 @@ public class Game {
      * @return true if there are no players in the game, false otherwise
      */
     @JsonIgnore
-    public boolean allPlayerDonePlaying() {
+    public boolean areAllPlayersDone() {
         return players.values().stream().allMatch(player -> player.getCurrentRound() >= maxRounds);
     }
 

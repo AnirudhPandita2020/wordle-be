@@ -1,6 +1,6 @@
 package io.piseven.wordle;
 
-import io.piseven.wordle.room.main.RoomSocketHandler;
+import io.piseven.wordle.room.RoomSocketHandler;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -31,7 +31,7 @@ class SocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(@NonNull WebSocketHandlerRegistry registry) {
-        registry.addHandler(roomSocketHandler, "/wordle")
+        registry.addHandler(roomSocketHandler, "/game")
                 .addInterceptors(new HttpSessionHandshakeInterceptor())
                 .setAllowedOrigins(allowedOrigin);
 

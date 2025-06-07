@@ -2,13 +2,7 @@ package io.piseven.wordle.room.util;
 
 import lombok.experimental.UtilityClass;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 
 @UtilityClass
@@ -31,21 +25,5 @@ public class RoomUtil {
         }
         return roomId.toString();
     }
-
-    /**
-     * Parses the query parameters from a URL query string into a map.
-     *
-     * @param query the query string to parse, e.g., "key1=value1&key2=value2"
-     * @return a map containing the query parameters as key-value pairs
-     */
-    public Map<String, String> parseQueryParams(String query) {
-        if (query == null || query.isEmpty()) {
-            return Collections.emptyMap();
-        }
-        return Arrays.stream(query.split("&"))
-                .map(param -> param.split("=", 2))
-                .collect(Collectors.toMap(pair -> URLDecoder.decode(pair[0], StandardCharsets.UTF_8), pair -> pair.length > 1 ? URLDecoder.decode(pair[1], StandardCharsets.UTF_8) : ""));
-    }
-
 
 }
